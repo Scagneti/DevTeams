@@ -34,9 +34,19 @@ namespace KomodoDevTeams.Tests
 		{
 			_devService = new DevService(_userId);
 
-			var expected = true;
-			var actual = _devService.GetDevs().ToString().Contains("Tarl");
+			var expected = "Zach";
+			var actual = _devService.GetDevs().First().ToString();
 			Assert.AreEqual(expected, actual);
+		}
+		[TestMethod]
+		public void DevServices_GetDevById_returns_correct_dev()
+		{
+			_devService = new DevService(_userId);
+			var _devDetails = new DevDetails();
+
+			var expected = _devDetails;
+			var actual = _devService.GetDevById(1);
+			Assert.IsInstanceOfType(actual, _devDetails.GetType());
 		}
 		}
 	}
