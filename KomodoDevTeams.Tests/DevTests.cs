@@ -46,7 +46,32 @@ namespace KomodoDevTeams.Tests
 
 			var expected = _devDetails;
 			var actual = _devService.GetDevById(1);
-			Assert.IsInstanceOfType(actual, _devDetails.GetType());
+			var actualId = _devService.GetDevById(1).DevId;
+			Assert.IsInstanceOfType(actual, expected.GetType());
+			Assert.AreEqual(1, actualId);
+		}
+		[TestMethod]
+		public void DevServices_UpdateDev_edits_dev()
+		{
+			DevCreate newDev = new DevCreate()
+			{
+				DevName = "Zach",
+			};
+
+
+			var userid = _userId;
+			userid = Guid.Parse("f2055f74-ec6c-44f7-a8a0-e699132a0fed");
+
+			var _devService = new DevService(userid);
+			_devService.CreateDev(newDev);
+
+			var _devEdit = new DevEdit();
+			_devEdit.DevId = 1;
+			_devEdit.DevName = "Zach";
+
+			var expected = true;
+			var actual = _devService.UpdateDev(_devEdit);
+			Assert.AreEqual(expected, actual);
 		}
 		}
 	}
