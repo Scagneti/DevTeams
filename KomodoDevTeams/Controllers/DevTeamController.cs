@@ -1,4 +1,5 @@
-﻿using KomodoDevTeams.Models;
+﻿using KomodoDevTeams.Contracts;
+using KomodoDevTeams.Models;
 using KomodoDevTeams.Services;
 using Microsoft.AspNet.Identity;
 using System;
@@ -11,18 +12,22 @@ using System.Web.Http;
 namespace KomodoDevTeams.Controllers
 {
 	[Authorize]
-    public class DevTeamController : ApiController
-    {
+	public class DevTeamController : ApiController
+	{
+		private IDevTeamService _devTeamService;
+		public DevTeamController() { }
+		public DevTeamController(IDevTeamService mockService)
+		{
+			_devTeamService = mockService;
+		}
 		public IHttpActionResult GetAll()
 		{
-			DevTeamServices devTeamService = CreateDevTeamService();
-			var devTeam = devTeamService.GetDevTeams();
+			var devTeam = _devTeamService.GetDevTeams();
 			return Ok(devTeam);
 		}
 		public IHttpActionResult Get(int id)
 		{
-			DevTeamServices devTeamService = CreateDevTeamService();
-			var devTeam = devTeamService.GetDevTeamById(id);
+			var devTeam = _devTeamService.GetDevTeamById(id);
 			return Ok(devTeam);
 		}
 		public IHttpActionResult Post(DevTeamCreate dev)
@@ -30,9 +35,7 @@ namespace KomodoDevTeams.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateDevTeamService();
-
-			if (!service.CreateDevTeam(dev))
+			if (!_devTeamService.CreateDevTeam(dev))
 				return InternalServerError();
 			return Ok();
 		}
@@ -41,27 +44,25 @@ namespace KomodoDevTeams.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateDevTeamService();
-
-			if (!service.UpdateDevTeam(devTeam))
+			if (!_devTeamService.UpdateDevTeam(devTeam))
 				return InternalServerError();
 
 			return Ok();
 		}
 		public IHttpActionResult Delete(int id)
 		{
-			var service = CreateDevTeamService();
-
-			if (!service.DeleteDevTeam(id))
+			if (!_devTeamService.DeleteDevTeam(id))
 				return InternalServerError();
 
 			return Ok();
 		}
-		private DevTeamServices CreateDevTeamService()
+		private void CreateDevTeamService()
 		{
-			var userId = Guid.Parse(User.Identity.GetUserId());
-			var devTeamSerivce = new DevTeamServices(userId);
-			return devTeamSerivce;
+			if(_devTeamService == null)
+			{
+				var userId = Guid.Parse(User.Identity.GetUserId());
+				var devTeamService = new DevTeamServices(userId);
+			}
 		}
 	}
 }
