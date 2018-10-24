@@ -22,11 +22,13 @@ namespace KomodoDevTeams.WebAPI.Controllers
 		}
 		public IHttpActionResult GetAll()
 		{
+			CreateDevService();
 			var devs = _devService.GetDevs();
 			return Ok(devs);
 		}
 		public IHttpActionResult Get(int id)
 		{
+			CreateDevService();
 			var devs = _devService.GetDevById(id);
 			return Ok(devs);
 		}
@@ -61,7 +63,7 @@ namespace KomodoDevTeams.WebAPI.Controllers
 			if (_devService == null)
 			{
 				var userId = Guid.Parse(User.Identity.GetUserId());
-				var devSerivce = new DevService(userId);
+				_devService = new DevService(userId);
 			}
 		}
 	}

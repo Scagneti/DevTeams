@@ -22,11 +22,13 @@ namespace KomodoDevTeams.Controllers
 		}
 		public IHttpActionResult GetAll()
 		{
+			CreateDevTeamService();
 			var devTeam = _devTeamService.GetDevTeams();
 			return Ok(devTeam);
 		}
 		public IHttpActionResult Get(int id)
 		{
+			CreateDevTeamService();
 			var devTeam = _devTeamService.GetDevTeamById(id);
 			return Ok(devTeam);
 		}
@@ -61,7 +63,7 @@ namespace KomodoDevTeams.Controllers
 			if(_devTeamService == null)
 			{
 				var userId = Guid.Parse(User.Identity.GetUserId());
-				var devTeamService = new DevTeamServices(userId);
+				_devTeamService = new DevTeamServices(userId);
 			}
 		}
 	}
