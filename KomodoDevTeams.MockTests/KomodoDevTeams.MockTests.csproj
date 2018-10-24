@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="ContractTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DevTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
