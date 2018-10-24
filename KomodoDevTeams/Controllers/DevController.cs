@@ -1,4 +1,5 @@
-﻿using KomodoDevTeams.Models;
+﻿using KomodoDevTeams.Contracts;
+using KomodoDevTeams.Models;
 using KomodoDevTeams.Services;
 using Microsoft.AspNet.Identity;
 using System;
@@ -11,18 +12,22 @@ using System.Web.Http;
 namespace KomodoDevTeams.WebAPI.Controllers
 {
 	[Authorize]
-    public class DevController : ApiController
-    {
+	public class DevController : ApiController
+	{
+		private IDevService _devService;
+		public DevController() { }
+		public DevController(IDevService mockService)
+		{
+			_devService = mockService;
+		}
 		public IHttpActionResult GetAll()
 		{
-			DevService devService = CreateDevService();
-			var devs = devService.GetDevs();
+			var devs = _devService.GetDevs();
 			return Ok(devs);
 		}
 		public IHttpActionResult Get(int id)
 		{
-			DevService devService = CreateDevService();
-			var devs = devService.GetDevById(id);
+			var devs = _devService.GetDevById(id);
 			return Ok(devs);
 		}
 		public IHttpActionResult Post(DevCreate dev)
@@ -30,9 +35,7 @@ namespace KomodoDevTeams.WebAPI.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateDevService();
-
-			if (!service.CreateDev(dev))
+			if (!_devService.CreateDev(dev))
 				return InternalServerError();
 			return Ok();
 		}
@@ -41,27 +44,25 @@ namespace KomodoDevTeams.WebAPI.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateDevService();
-
-			if (!service.UpdateDev(dev))
+			if (!_devService.UpdateDev(dev))
 				return InternalServerError();
 
 			return Ok();
 		}
 		public IHttpActionResult Delete(int id)
 		{
-			var service = CreateDevService();
-
-			if (!service.DeleteDev(id))
+			if (!_devService.DeleteDev(id))
 				return InternalServerError();
 
 			return Ok();
 		}
-		private DevService CreateDevService()
+		private void CreateDevService()
 		{
-			var userId = Guid.Parse(User.Identity.GetUserId());
-			var devSerivce = new DevService(userId);
-			return devSerivce;
+			if (_devService == null)
+			{
+				var userId = Guid.Parse(User.Identity.GetUserId());
+				var devSerivce = new DevService(userId);
+			}
 		}
-    }
+	}
 }
