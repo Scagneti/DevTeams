@@ -1,4 +1,5 @@
-﻿using KomodoDevTeams.Models;
+﻿using KomodoDevTeams.Contracts;
+using KomodoDevTeams.Models;
 using KomodoDevTeams.Services;
 using Microsoft.AspNet.Identity;
 using System;
@@ -13,16 +14,23 @@ namespace KomodoDevTeams.Controllers
 	[Authorize]
     public class ContractController : ApiController
     {
+		private IContractService _contractService;
+		public ContractController() { }
+		public ContractController(IContractService mockService)
+		{
+			_contractService = mockService;
+		}
+
 		public IHttpActionResult GetAll()
 		{
-			ContractService contractService = CreateContractService();
-			var contract = contractService.GetContracts();
+			CreateContractService();
+			var contract = _contractService.GetContracts();
 			return Ok(contract);
 		}
 		public IHttpActionResult Get(int id)
 		{
-			ContractService contractService = CreateContractService();
-			var contract = contractService.GetContractById(id);
+			CreateContractService();
+			var contract = _contractService.GetContractById(id);
 			return Ok(contract);
 		}
 		public IHttpActionResult Post(ContractCreate contract)
@@ -30,9 +38,8 @@ namespace KomodoDevTeams.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateContractService();
 
-			if (!service.CreateContract(contract))
+			if (!_contractService.CreateContract(contract))
 				return InternalServerError();
 			return Ok();
 		}
@@ -41,27 +48,26 @@ namespace KomodoDevTeams.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var service = CreateContractService();
-
-			if (!service.UpdateContracts(contract))
+			if (!_contractService.UpdateContracts(contract))
 				return InternalServerError();
 
 			return Ok();
 		}
 		public IHttpActionResult Delete(int id)
 		{
-			var service = CreateContractService();
 
-			if (!service.DeleteContracts(id))
+			if (!_contractService.DeleteContracts(id))
 				return InternalServerError();
 
 			return Ok();
 		}
-		private ContractService CreateContractService()
+		private void CreateContractService()
 		{
-			var userId = Guid.Parse(User.Identity.GetUserId());
-			var contractService = new ContractService(userId);
-			return contractService;
+			if(_contractService == null)
+			{
+				var userId = Guid.Parse(User.Identity.GetUserId());
+				_contractService = new ContractService(userId);
+			}
 		}
-    }
+	}
 }
